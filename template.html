@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<title>New equipment</title>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+            <script type="text/javascript"> 
+                    var x = 0;
+                    var i = 0;
+                    var equipments = "";
+                    var JSONobj=[];
+
+                    var models = [];
+                    window.onload = function(){
+                        var modelx = JSON.parse(localStorage.getItem('model'));
+                        if (modelx != null) 
+                        for (i=0;i<modelx.length;i++){
+                                e = " - " + modelx[i]
+                                var div = document.createElement("div");
+                                var text = document.createTextNode(e);
+                                div.appendChild(text);
+                                $("#div").append(div)
+                                var select = document.getElementById("select");
+                                select.options[select.options.length] = new Option(modelx[i]);
+                        }
+                    }
+                    
+                    function add_model(){
+                        model=document.getElementById("model").value;
+                        document.getElementById("model").value="";
+                        let e =""
+                        e = " - " + model
+                        var div = document.createElement("div");
+                        var text = document.createTextNode(e);
+                        div.appendChild(text);
+                        $("#div").append(div)
+                        models.push(model);
+                        localStorage.setItem('model',JSON.stringify(models));
+                    }
+
+                    function send_json(equipment,model){
+                        axios({
+                            method:"post",
+                            url:"/api/v1/equipments/",
+                            data:{ 
+                                "name":equipment,
+                                "model":model,
+                            },
+                        });
+                    }
+
+                    function add_json(){
+                        equipment=document.getElementById("equipment").value;
+                        model=document.getElementById("select").value;
+                        document.getElementById("equipment").value="";
+                        let e =""
+                        e += equipment + " - " + model;
+                        var obj = {name:equipment,model:model}
+                        var ul= document.createElement("li");
+                        var t = document.createTextNode(ul.innerHTML="Equipment: " +obj.name+" | " +"Model: " + obj.model);
+                        $("#ul").append(ul)
+                        send_json(equipment,model);
+                    }
+
+                    function add_to_select(){
+                        var select = document.getElementById("select");
+                        select.options[select.options.length] = new Option(models);
+                    }
+            </script>
+</head>
+<body>
+    <label>Models</label></br>
+    <input id="model" ></input>
+    <input type="button" value="Add" onclick="add_model();"></input>
+    <div id="div"></div>
+<br>
+    <label>Equipments</label>
+    <form method="post">
+    <input id="equipment"></input>
+    <select id="select" size="1" onclick="add_to_select();"></select>
+    <input id="button" type="button" value="Add" onclick="add_json();"></input>
+    </form>
+
+    <ul id="ul">
+    {{ range $index, $item := .items }}
+    <li>Equipment: {{ $item.Name }} | 
+        Model: {{ $item.Model }}</li>
+    {{ end }}
+    </ul>
+</body>
+</html>
